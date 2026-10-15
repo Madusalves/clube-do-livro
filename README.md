@@ -1,4 +1,4 @@
-# Ler aí, Uai
+# Lê aí, Uai
 
 Um "Letterboxd de livros" para o clube: cada membro escreve resenhas e dá notas, e o clube marca qual livro está lendo. **Nenhum livro é hospedado**, só as opiniões.
 

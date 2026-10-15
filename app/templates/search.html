@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{% if q %}{{ q }} · {% endif %}Buscar · Ler aí, Uai{% endblock %}
+{% block title %}{% if q %}{{ q }} · {% endif %}Buscar · Lê aí, Uai{% endblock %}
 {% block content %}
 <form class="searchbar" action="/buscar" method="get">
   <input name="q" value="{{ q }}" placeholder="Título ou autor" autofocus required>

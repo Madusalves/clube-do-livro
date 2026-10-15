@@ -14,7 +14,7 @@ def search(query: str, limit: int = 12) -> tuple[list[dict], bool]:
         "fields": "title,author_name,first_publish_year,cover_i,language",
     }
     try:
-        r = httpx.get(SEARCH_URL, params=params, timeout=6, headers={"User-Agent": "ler-ai-uai/1.0"})
+        r = httpx.get(SEARCH_URL, params=params, timeout=6, headers={"User-Agent": "le-ai-uai/1.0"})
         r.raise_for_status()
         docs = r.json().get("docs", [])
     except (httpx.HTTPError, ValueError):
