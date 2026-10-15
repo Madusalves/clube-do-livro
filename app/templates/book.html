@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} · Clube do Livro{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-row">
+    {% if book.cover_url %}<img class="cover" src="{{ book.cover_url }}" alt="Capa de {{ book.title }}">{% endif %}
+    <div>
+      <h1>{{ book.title }}</h1>
+      <p class="muted">{{ book.author }}{% if book.year %} · {{ book.year }}{% endif %}</p>
+      {% if book.suggested_by_name %}<p class="muted">Indicado por {{ book.suggested_by_name }}</p>{% endif %}
+      {% if book.n_reviews %}
+        <p><span class="stars">{{ book.avg_rating|stars }}</span> {{ book.avg_rating }} · {{ book.n_reviews }} resenha(s)</p>
+      {% endif %}
+      {% if book.is_current %}
+        <p><span class="tag">{{ icon("bookmark", 12) }} lendo agora</span></p>
+      {% else %}
+        <form method="post" action="/livros/{{ book.id }}/atual">
+          <button class="btn ghost" type="submit">Marcar como livro atual do clube</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>{{ icon("quill", 20) }} Resenhas e comentários</h2>
+  {% for r in reviews %}
+    <article class="card">
+      <header>
+        <a href="/membros/{{ r.member_id }}"><strong>{{ r.member_name }}</strong></a>
+        <span class="stars">{{ r.rating|stars }}</span>
+      </header>
+      <p class="muted">{{ r.created_at[:10] }}</p>
+      {% if r.text %}<p>{{ r.text }}</p>{% endif %}
+    </article>
+  {% else %}
+    <p class="muted empty">{{ icon("open", 28) }} Ninguém resenhou ainda. Seja o primeiro a marcar a página.</p>
+  {% endfor %}
+</section>
+
+<section id="resenha">
+  <h2>{{ icon("feather", 20) }} Deixe sua resenha</h2>
+  <form method="post" action="/livros/{{ book.id }}/resenha" class="card stack">
+    <label>Seu nome
+      <input name="member_name" list="members" required>
+      <datalist id="members">{% for m in members %}<option value="{{ m.name }}">{% endfor %}</datalist>
+    </label>
+    <fieldset class="rate">
+      <legend>Nota</legend>
+      <div class="rate-stars">
+        {% for n, label in [(5, "Adorei"), (4, "Gostei"), (3, "Ok"), (2, "Fraco"), (1, "Não gostei")] %}
+          <input type="radio" id="rate{{ n }}" name="rating" value="{{ n }}" {% if n == 3 %}checked{% endif %}>
+          <label for="rate{{ n }}" title="{{ n }} · {{ label }}">★</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <label>O que você achou? <textarea name="text" rows="5" placeholder="Opinião livre, sem spoilers pesados"></textarea></label>
+    <p class="muted"><small>Se você já resenhou este livro, enviar de novo atualiza sua resenha.</small></p>
+    <button class="btn" type="submit">Publicar</button>
+  </form>
+</section>
+{% endblock %}

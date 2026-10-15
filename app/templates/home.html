@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="search-hero">
+  <span class="float f1">{{ icon("book", 44) }}</span>
+  <span class="float f2">{{ icon("feather", 40) }}</span>
+  <span class="float f3">{{ icon("open", 48) }}</span>
+  <span class="float f4">{{ icon("bookmark", 36) }}</span>
+  <h1 class="logo">Clube do <span>Livro</span></h1>
+  <p class="muted tagline">Procure um livro, leia as opiniões do clube e deixe a sua.</p>
+  <form class="searchbar" action="/buscar" method="get">
+    <input name="q" placeholder="Título ou autor" autofocus required>
+    <button type="submit">Buscar</button>
+  </form>
+</section>
+
+<section class="hero">
+  {% if current %}
+    <p class="eyebrow">{{ icon("bookmark", 14) }} Lendo agora · desde {{ current.started_at }}</p>
+    <div class="hero-row">
+      {% if current.cover_url %}<img class="cover" src="{{ current.cover_url }}" alt="Capa de {{ current.title }}">{% endif %}
+      <div>
+        <h1><a href="/livros/{{ current.book_id }}">{{ current.title }}</a></h1>
+        <p class="muted">{{ current.author }}{% if current.year %} · {{ current.year }}{% endif %}</p>
+        {% if current_book and current_book.n_reviews %}
+          <p><span class="stars">{{ current_book.avg_rating|stars }}</span> {{ current_book.avg_rating }} · {{ current_book.n_reviews }} resenha(s)</p>
+        {% endif %}
+        <p>
+          <a class="btn" href="/livros/{{ current.book_id }}#resenha">Escrever resenha</a>
+          <form class="inline" method="post" action="/ciclo/encerrar">
+            <button class="btn ghost" type="submit">Encerrar leitura</button>
+          </form>
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <p class="eyebrow">{{ icon("bookmark", 14) }} Lendo agora</p>
+    <div class="empty-art">{{ icon("glasses", 56) }}</div>
+    <h1>O clube ainda não escolheu um livro</h1>
+    <p class="muted">Cadastre um livro e marque-o como "livro atual".</p>
+    <p><a class="btn" href="/livros">Ver livros</a></p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>{{ icon("quill", 20) }} Resenhas recentes</h2>
+  {% for r in recent %}
+    <article class="card">
+      <header>
+        <a href="/livros/{{ r.book_id }}"><strong>{{ r.book_title }}</strong></a>
+        <span class="stars">{{ r.rating|stars }}</span>
+      </header>
+      <p class="muted">por {{ r.member_name }} · {{ r.created_at[:10] }}</p>
+      {% if r.text %}<p>{{ r.text }}</p>{% endif %}
+    </article>
+  {% else %}
+    <p class="muted empty">{{ icon("quill", 28) }} Nenhuma resenha ainda. A primeira página está em branco.</p>
+  {% endfor %}
+</section>
+
+{% if cycles %}
+<section>
+  <h2>{{ icon("open", 20) }} Últimas leituras do clube</h2>
+  <ul class="plain">
+    {% for c in cycles %}
+      <li><a href="/livros/{{ c.book_id }}">{{ c.title }}</a> <span class="muted">· {{ c.author }}{% if c.avg_rating %} · {{ c.avg_rating }}★{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+  <p><a href="/historico">Ver histórico completo</a></p>
+</section>
+{% endif %}
+{% endblock %}

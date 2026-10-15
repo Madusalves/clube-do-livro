@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Histórico · Clube do Livro{% endblock %}
+{% block content %}
+<h1>Histórico de leituras</h1>
+<ul class="plain timeline">
+  {% for c in cycles %}
+    <li>
+      <a href="/livros/{{ c.book_id }}"><strong>{{ c.title }}</strong></a>
+      <span class="muted">· {{ c.author }}</span><br>
+      <small class="muted">{{ c.started_at }} → {{ c.finished_at or "em andamento" }}
+        {% if c.n_reviews %}· {{ c.avg_rating }}★ ({{ c.n_reviews }}){% endif %}</small>
+    </li>
+  {% else %}
+    <li class="muted">O clube ainda não leu nada por aqui.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

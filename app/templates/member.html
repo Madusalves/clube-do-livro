@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ member.name }} · Clube do Livro{% endblock %}
+{% block content %}
+<h1>{{ member.name }}</h1>
+{% for r in reviews %}
+  <article class="card">
+    <header>
+      <a href="/livros/{{ r.book_id }}"><strong>{{ r.book_title }}</strong></a>
+      <span class="stars">{{ r.rating|stars }}</span>
+    </header>
+    <p class="muted">{{ r.book_author }} · {{ r.created_at[:10] }}</p>
+    {% if r.text %}<p>{{ r.text }}</p>{% endif %}
+  </article>
+{% else %}
+  <p class="muted">Sem resenhas ainda.</p>
+{% endfor %}
+{% endblock %}

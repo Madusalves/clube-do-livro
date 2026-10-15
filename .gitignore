@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+clube.db
+.pytest_cache/
+uploads/

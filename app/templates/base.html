@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Clube do Livro{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">{{ icon("stack", 24) }} Clube do Livro</a>
+    <nav>
+      <a href="/buscar">{{ icon("search", 16) }} Buscar</a>
+      <a href="/livros">{{ icon("book", 16) }} Livros</a>
+      <a href="/membros">{{ icon("glasses", 16) }} Leitores</a>
+      <a href="/historico">{{ icon("bookmark", 16) }} Histórico</a>
+    </nav>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>{{ icon("cup", 18) }} Resenhas e opiniões do clube, feitas com café. Nenhum livro é hospedado aqui.</footer>
+</body>
+</html>

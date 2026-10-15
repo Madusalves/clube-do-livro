@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Livros · Clube do Livro{% endblock %}
+{% block content %}
+<h1>Livros</h1>
+
+<details class="card">
+  <summary>{{ icon("feather", 18) }} Cadastrar livro</summary>
+  <form method="post" action="/livros" class="stack" enctype="multipart/form-data">
+    <label>Título <input name="title" required></label>
+    <label>Autor <input name="author" required></label>
+    <div class="row">
+      <label>Ano <input name="year" inputmode="numeric" pattern="[0-9]*" placeholder="opcional"></label>
+      <label>Indicado por <input name="suggested_by" placeholder="opcional"></label>
+    </div>
+    <label>Capa (foto) <input name="cover" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+    <button class="btn" type="submit">Salvar</button>
+  </form>
+</details>
+
+<div class="grid">
+  {% for b in books %}
+    <a class="book" href="/livros/{{ b.id }}">
+      {% if b.cover_url %}<img src="{{ b.cover_url }}" alt="Capa de {{ b.title }}" loading="lazy">
+      {% else %}<div class="cover-ph">{{ icon("book", 34) }}<span>{{ b.title[:1] }}</span></div>{% endif %}
+      <strong>{{ b.title }}</strong>
+      <span class="muted">{{ b.author }}</span>
+      <span>
+        {% if b.avg_rating %}<span class="stars">{{ b.avg_rating|stars }}</span> <small>{{ b.avg_rating }}</small>{% else %}<small class="muted">sem notas</small>{% endif %}
+        {% if b.is_current %}<span class="tag">{{ icon("bookmark", 11) }} lendo agora</span>{% endif %}
+      </span>
+    </a>
+  {% else %}
+    <p class="muted">Nenhum livro cadastrado ainda.</p>
+  {% endfor %}
+</div>
+{% endblock %}

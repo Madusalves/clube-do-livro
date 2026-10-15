@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{% if q %}{{ q }} · {% endif %}Buscar · Clube do Livro{% endblock %}
+{% block content %}
+<form class="searchbar" action="/buscar" method="get">
+  <input name="q" value="{{ q }}" placeholder="Título ou autor" autofocus required>
+  <button type="submit">Buscar</button>
+</form>
+
+{% if q %}
+<h2>{{ icon("stack", 20) }} No clube ({{ local|length }})</h2>
+<div class="results">
+  {% for b in local %}
+    <a class="result" href="/livros/{{ b.id }}">
+      {% if b.cover_url %}<img src="{{ b.cover_url }}" alt="Capa de {{ b.title }}" loading="lazy">
+      {% else %}<div class="cover-ph">{{ icon("book", 30) }}<span>{{ b.title[:1] }}</span></div>{% endif %}
+      <div class="info">
+        <strong>{{ b.title }}</strong>
+        <span class="author">{{ b.author }}</span>
+        <span class="meta">
+          {% if b.year %}Ano: {{ b.year }} · {% endif %}
+          {% if b.avg_rating %}<span class="stars">{{ b.avg_rating|stars }}</span> {{ b.avg_rating }} · {{ b.n_reviews }} resenha(s){% else %}sem resenhas ainda{% endif %}
+        </span>
+      </div>
+    </a>
+  {% else %}
+    <p class="muted empty">{{ icon("glasses", 28) }} Nenhum livro do clube com esse termo.</p>
+  {% endfor %}
+</div>
+
+<h2>{{ icon("open", 20) }} Open Library</h2>
+{% if not external_ok %}
+  <p class="muted">Não foi possível consultar a Open Library agora. Tente de novo em instantes.</p>
+{% endif %}
+<div class="results">
+  {% for e in external %}
+    <form class="result" method="post" action="/livros/importar">
+      <input type="hidden" name="title" value="{{ e.title }}">
+      <input type="hidden" name="author" value="{{ e.author }}">
+      <input type="hidden" name="year" value="{{ e.year or '' }}">
+      <input type="hidden" name="cover_url" value="{{ e.cover_url }}">
+      {% if e.cover_url %}<img src="{{ e.cover_url }}" alt="Capa de {{ e.title }}" loading="lazy">
+      {% else %}<div class="cover-ph">{{ icon("book", 30) }}<span>{{ e.title[:1] }}</span></div>{% endif %}
+      <div class="info">
+        <strong>{{ e.title }}</strong>
+        <span class="author">{{ e.author }}</span>
+        <span class="meta">
+          {% if e.year %}Ano: {{ e.year }}{% endif %}
+          {% if e.languages %} · Idiomas: {{ e.languages }}{% endif %}
+        </span>
+        <button class="btn" type="submit">Ver e resenhar</button>
+      </div>
+    </form>
+  {% else %}
+    {% if external_ok %}<p class="muted">Nada novo na Open Library.</p>{% endif %}
+  {% endfor %}
+</div>
+<p class="muted"><small>Não achou? <a href="/livros">Cadastre o livro manualmente</a>, com foto da capa.</small></p>
+{% endif %}
+{% endblock %}

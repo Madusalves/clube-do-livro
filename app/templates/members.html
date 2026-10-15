@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Membros · Clube do Livro{% endblock %}
+{% block content %}
+<h1>Membros</h1>
+<p class="muted">Quem escreve a primeira resenha entra automaticamente na lista.</p>
+<ul class="plain">
+  {% for m in members %}
+    <li><a href="/membros/{{ m.id }}">{{ m.name }}</a>
+      <span class="muted">· {{ m.n_reviews }} resenha(s){% if m.avg_rating %} · média {{ m.avg_rating }}★{% endif %}</span></li>
+  {% else %}
+    <li class="muted">Ninguém ainda.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
