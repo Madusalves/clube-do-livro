@@ -11,12 +11,22 @@
       {% if book.n_reviews %}
         <p><span class="stars">{{ book.avg_rating|stars }}</span> {{ book.avg_rating }} · {{ book.n_reviews }} resenha(s)</p>
       {% endif %}
+      {% if book.was_read %}<p><span class="tag">{{ icon("open", 12) }} já lido pelo clube</span></p>{% endif %}
       {% if book.is_current %}
         <p><span class="tag">{{ icon("bookmark", 12) }} lendo agora</span></p>
       {% else %}
         <form method="post" action="/livros/{{ book.id }}/atual">
           <button class="btn ghost" type="submit">Marcar como livro atual do clube</button>
         </form>
+      {% endif %}
+      {% if not book.was_read and not book.is_current %}
+        <details class="past-form">
+          <summary class="muted">O clube já leu este livro?</summary>
+          <form method="post" action="/livros/{{ book.id }}/passado" class="inline-row">
+            <label>Quando? <input name="read_on" type="month"></label>
+            <button class="btn ghost" type="submit">Registrar leitura passada</button>
+          </form>
+        </details>
       {% endif %}
     </div>
   </div>

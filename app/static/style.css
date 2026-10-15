@@ -131,3 +131,11 @@ fieldset.rate { border: 0; padding: 0; margin: 0; }
   * { transition: none !important; }
 }
 @media (max-width: 520px) { .float { display: none; } }
+
+/* leitura passada */
+.past-box { display: grid; gap: .6rem; border: 1px dashed var(--line); border-radius: 8px; padding: .7rem .8rem; }
+label.check { display: flex; align-items: center; gap: .5rem; color: var(--fg); }
+label.check input { width: auto; }
+.past-form { margin-top: .6rem; }
+.inline-row { display: flex; gap: .6rem; align-items: end; flex-wrap: wrap; margin-top: .5rem; }
+.inline-row label { max-width: 200px; }

@@ -116,7 +116,8 @@ def get_book(conn, book_id: int):
     return conn.execute(
         """SELECT b.*, m.name AS suggested_by_name,
                   COUNT(r.id) AS n_reviews, ROUND(AVG(r.rating), 1) AS avg_rating,
-                  EXISTS(SELECT 1 FROM cycles c WHERE c.book_id = b.id AND c.finished_at IS NULL) AS is_current
+                  EXISTS(SELECT 1 FROM cycles c WHERE c.book_id = b.id AND c.finished_at IS NULL) AS is_current,
+                  EXISTS(SELECT 1 FROM cycles c WHERE c.book_id = b.id AND c.finished_at IS NOT NULL) AS was_read
            FROM books b
            LEFT JOIN members m ON m.id = b.suggested_by
            LEFT JOIN reviews r ON r.book_id = b.id
@@ -144,6 +145,18 @@ def set_current_book(conn, book_id: int):
     conn.execute("INSERT INTO cycles (book_id) VALUES (?)", (book_id,))
 
 
+def add_past_cycle(conn, book_id: int, read_on: str):
+    """Registra uma leitura antiga do clube (ciclo já encerrado em read_on, 'AAAA-MM-DD')."""
+    exists = conn.execute(
+        "SELECT 1 FROM cycles WHERE book_id = ? AND finished_at = ?", (book_id, read_on)
+    ).fetchone()
+    if not exists:
+        conn.execute(
+            "INSERT INTO cycles (book_id, started_at, finished_at) VALUES (?, ?, ?)",
+            (book_id, read_on, read_on),
+        )
+
+
 def finish_current_cycle(conn):
     conn.execute("UPDATE cycles SET finished_at = CURRENT_DATE WHERE finished_at IS NULL")
 
@@ -154,7 +167,7 @@ def list_cycles(conn):
                   (SELECT ROUND(AVG(rating), 1) FROM reviews r WHERE r.book_id = b.id) AS avg_rating,
                   (SELECT COUNT(*) FROM reviews r WHERE r.book_id = b.id) AS n_reviews
            FROM cycles c JOIN books b ON b.id = c.book_id
-           ORDER BY c.id DESC"""
+           ORDER BY (c.finished_at IS NULL) DESC, c.finished_at DESC, c.id DESC"""
     ).fetchall()
 
 

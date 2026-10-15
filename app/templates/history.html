@@ -7,7 +7,7 @@
     <li>
       <a href="/livros/{{ c.book_id }}"><strong>{{ c.title }}</strong></a>
       <span class="muted">· {{ c.author }}</span><br>
-      <small class="muted">{{ c.started_at }} → {{ c.finished_at or "em andamento" }}
+      <small class="muted">{% if c.finished_at and c.started_at == c.finished_at %}lido em {{ c.finished_at }}{% else %}{{ c.started_at }} → {{ c.finished_at or "em andamento" }}{% endif %}
         {% if c.n_reviews %}· {{ c.avg_rating }}★ ({{ c.n_reviews }}){% endif %}</small>
     </li>
   {% else %}

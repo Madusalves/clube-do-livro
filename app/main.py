@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import date
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -137,6 +138,17 @@ def books(request: Request):
         return templates.TemplateResponse(request, "books.html", {"books": db.list_books(conn)})
 
 
+def parse_read_on(value: str) -> str:
+    """Data da leitura passada: vazio vira hoje; aceita AAAA-MM-DD ou AAAA-MM."""
+    value = value.strip()
+    if not value:
+        return date.today().isoformat()
+    try:
+        return date.fromisoformat(value if len(value) > 7 else value + "-01").isoformat()
+    except ValueError:
+        raise HTTPException(400, "Data inválida.")
+
+
 @app.post("/livros")
 async def create_book(
     title: str = Form(...),
@@ -144,14 +156,19 @@ async def create_book(
     year: str = Form(""),
     cover: UploadFile | None = File(None),
     suggested_by: str = Form(""),
+    past: str = Form(""),
+    read_on: str = Form(""),
 ):
     if not title.strip() or not author.strip():
         raise HTTPException(400, "Título e autor são obrigatórios.")
     year_val = int(year) if year.strip().isdigit() else None
+    read_date = parse_read_on(read_on) if past else None
     cover_url = await save_cover(cover)
     with db.connect() as conn:
         member_id = db.get_or_create_member(conn, suggested_by) if suggested_by.strip() else None
         book_id = db.add_book(conn, title, author, year_val, cover_url, member_id)
+        if read_date:
+            db.add_past_cycle(conn, book_id, read_date)
     return go(f"/livros/{book_id}")
 
 
@@ -198,6 +215,16 @@ def make_current(book_id: int):
             raise HTTPException(404, "Livro não encontrado.")
         db.set_current_book(conn, book_id)
     return go("/")
+
+
+@app.post("/livros/{book_id}/passado")
+def mark_past(book_id: int, read_on: str = Form("")):
+    read_date = parse_read_on(read_on)
+    with db.connect() as conn:
+        if not db.get_book(conn, book_id):
+            raise HTTPException(404, "Livro não encontrado.")
+        db.add_past_cycle(conn, book_id, read_date)
+    return go(f"/livros/{book_id}")
 
 
 @app.post("/ciclo/encerrar")

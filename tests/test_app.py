@@ -117,3 +117,28 @@ def test_search_survives_openlibrary_down(client, monkeypatch):
     monkeypatch.setattr(main.openlibrary, "search", lambda q: ([], False))
     page = client.get("/buscar", params={"q": "x"})
     assert page.status_code == 200 and "Não foi possível consultar" in page.text
+
+
+def test_past_book_on_register_and_search(client, monkeypatch):
+    from app import main
+
+    monkeypatch.setattr(main.openlibrary, "search", lambda q: ([], True))
+    r = client.post("/livros", data={"title": "Memórias Póstumas", "author": "Machado de Assis",
+                    "past": "1", "read_on": "2026-03"}, follow_redirects=False)
+    book = int(r.headers["location"].rsplit("/", 1)[1])
+    page = client.get(f"/livros/{book}").text
+    assert "já lido pelo clube" in page
+    assert "lido em 2026-03-01" in client.get("/historico").text
+    assert "Memórias Póstumas" in client.get("/buscar", params={"q": "póstumas"}).text
+    # ainda dá para opinar sobre o livro antigo
+    assert client.post(f"/livros/{book}/resenha", data={"member_name": "Ana", "rating": 4, "text": "bom"},
+                       follow_redirects=False).status_code == 303
+    # o livro atual não é afetado
+    assert "ainda não escolheu" in client.get("/").text
+
+
+def test_mark_existing_book_as_past(client):
+    book = add_book(client)
+    assert client.post(f"/livros/{book}/passado", data={"read_on": "2025-12"}).status_code == 200
+    assert "já lido pelo clube" in client.get(f"/livros/{book}").text
+    assert client.post(f"/livros/{book}/passado", data={"read_on": "ontem"}).status_code == 400
